@@ -14,9 +14,10 @@ class CatBall(Entity):
         self.visible=False
         self.scale=(0.5,0.5)
 
-    def attack(self,player_x,player_y):
-        self.x=player_x
-        self.y=player_y
+    def attack(self,player):
+        self.x=player.x
+        self.y=player.y+0.5
+
 
 
 list_of_coints=[]
