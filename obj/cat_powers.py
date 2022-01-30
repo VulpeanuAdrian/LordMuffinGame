@@ -20,6 +20,7 @@ class CatBall(Entity):
 
 
 
+
 list_of_coints=[]
 class CatCoins(Entity):
     def __init__(self,x,y=-1):

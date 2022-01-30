@@ -17,11 +17,12 @@ terrain_lengh_size = 5
 class FirstLevel(Entity):
     def __init__(self, **kwargs):
         super().__init__()
+        self.finish_level=False
         self.first_level_sound = Audio('first_level_sounds.mp3', loop=True, autoplay=True)
-        self.jump = Audio('assets/jump.mp3', loop=False, autoplay=False)
+        self.jump = Audio('../assets/jump.mp3', loop=False, autoplay=False)
         # self.coints_sound=Audio('coint.mp3',loop=False,autoplay=False)
         self.death_enemies = []
-        self.mouse_hit_points = 5  # final boss life
+        self.mouse_hit_points = 6  # final boss life = equal with 5 hits
         self.immortal_muffin = 1
         self.switch = 1
         self.cat_power_flag = 0
@@ -45,7 +46,7 @@ class FirstLevel(Entity):
         self.ground = Entity(model='quad', y=-2, collider='box', color=color.white, scale=(10, 0.7),
                              texture=f'images/brick.jpg')
 
-        self.player = PlatformerController2d(y=4, z=-0.01, scale=(1, 1), color=color.white,
+        self.player = PlatformerController2d(y=5, z=-0.01,x=56, scale=(1, 1), color=color.white,
                                              texture=f'images/muffin_02.png')
         self.player.walk_speed = 10
         self.list_of_coints = []
@@ -55,6 +56,7 @@ class FirstLevel(Entity):
                            texture='images/cat_slider')
 
         self.cat_food = Entity(model='quad', x=2, y=4, scale_x=0.5, color=color.white, texture='images/cat_food1')
+        self.cat_food_2= Entity(model='quad', x=72, y=8, scale_x=0.5, color=color.white, texture='images/cat_food1')
 
         self.wall = Entity(model='quad', scale=(2, 3), x=-3,
                            collider='box', color=color.white, texture='images/cat_tower.png')
@@ -106,20 +108,26 @@ class FirstLevel(Entity):
             if m % 2 == 0:
                 duplicate(entity=self.cube, x=self.size * (m + 1))
                 duplicate(entity=self.cube, x=-self.size * (m + 1))
-        for i in range(3):
+        for i in range(2):
             self.stairs = Entity(model='quad', y=i + i, x=i + self.ground.x + terrain_lengh_size * 14, collider='box',
                                  color=color.white,
                                  scale=(1, 1),
                                  texture=f'images/brick.jpg')
+
+            self.cat_food_stair=Entity(model='quad', y=4 , x= 72, collider='box',
+                                     color=color.white,
+                                     scale=(1, 1),
+                                     texture=f'images/brick.jpg')
+
             if i % 5 == 0:
                 duplicate(entity=self.bg, x=self.stairs.x, y=self.stairs.y)
 
         self.up_stairs_ground = Entity(model='quad', y=self.stairs.y, x=self.stairs.x + 17, collider='box',
-                                       color=color.red,
+                                       color=color.orange,
                                        scale=(30, 0.7),
                                        texture=f'images/brick.jpg')
 
-        self.mouse_enemy = MouseEnemy(y=self.stairs.y + 2, x=self.stairs.x + 8)
+        self.mouse_enemy = MouseEnemy(y=self.stairs.y + 2.5, x=self.stairs.x + 10)
         self.enemies.append(self.mouse_enemy)
         switch = 1
         # camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], self.speed=4))
@@ -128,6 +136,7 @@ class FirstLevel(Entity):
         camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], speed=4))
 
     def update(self):
+        global right_flag
 
         print_on_screen(f'Cube Score: {self.score_counter}', scale=1, position=(-.85, .45), )
         # global  dx, switch, start_range_x_ball_attack, bird_speed, cat_power_flag, mouse_hit_points, start
@@ -141,16 +150,13 @@ class FirstLevel(Entity):
         if abs(self.player.x - self.cat_food.x) <= 1 and abs(self.player.y - self.cat_food.y) <= 1:
             self.cat_power_flag = 1
             self.cat_food.visible = False
-
+        if abs(self.player.x - self.cat_food_2.x) <= 1 and abs(self.player.y - self.cat_food_2.y) <= 1:
+            self.cat_power_flag = 1
+            self.cat_food_2.visible = False
         self.full_bar.x = camera.x - self.size // 1.5  # size is the width of the background image
         self.full_bar.y = camera.y + 4
         self.green_bar.x = self.full_bar.x
         self.green_bar.y = self.full_bar.y
-        if (self.player.right[0] == 1.0):
-            self.cat_ball_attack.x += 0.10
-        else:
-            self.cat_ball_attack.x -= 0.10  # if the player is in left position it should  attack in left with a ball
-
         # final boss movement
 
         if self.switch == 1:
@@ -180,13 +186,27 @@ class FirstLevel(Entity):
                         self.score_counter += 1
 
                 else:
-                    if abs(self.cat_ball_attack.x - enemy.x) < 5 and abs(self.cat_ball_attack.y - enemy.y) < 5:
+                    enemy.cheese_attack
+                    enemy.cheese_attack.x-=0.10
+                    if enemy.cheese_attack.x <57:
+                        enemy.cheese_attack.x=enemy.x
+                    if abs(self.player.x - enemy.cheese_attack.x) < 1 and abs(
+                            self.player.y - enemy.cheese_attack.y) < 1:
+                        self.player.rotation_z = 90
+                        switch = 0
+                        self.green_bar.scale_x = 0
+                    if abs(self.cat_ball_attack.x - enemy.x) < 1:
+                        self.cat_ball_attack.x=-1222
                         self.mouse_hit_points -= 1
-                        self.cat_ball_attack.x=1 # todo fix this also try  to make the mouse invisible for 0.5 sec when hit
+                        invoke(setattr, enemy, 'visible',False, delay=0.25) #todo try to use this at others enemies
+                        invoke(setattr, enemy, 'visible',True, delay=0.25)
+
+                        enemy.visible=True
                         if self.mouse_hit_points < 1:
                             enemy.visible = False
-                            # enemies.remove(enemy)
+                            enemy.x=-1222
                             self.score_counter += 50
+                            self.finish_level=True
 
         # check for collision in traps
         for trap in self.trap_list:
@@ -211,8 +231,21 @@ class FirstLevel(Entity):
 
         if self.cat_power_flag == 1:
             if held_keys['r']:
-                self.cat_ball_attack.attack(self.player)
                 self.cat_ball_attack.visible = True
+                if self.player.right[0] == 1.0:
+                    right_flag=True
+                else:
+                    right_flag = False
+
+                self.cat_ball_attack.attack(self.player)
+
+        try:
+            if right_flag:
+                self.cat_ball_attack.x += 0.10
+            elif right_flag == False:
+                self.cat_ball_attack.x -= 0.10
+        except:
+            pass
         if abs(self.cat_ball_attack.x) > abs(self.player.x) + 5:
                 self.cat_ball_attack.visible = False
                 self.cat_ball_attack.y = -3

@@ -34,7 +34,11 @@ class MouseEnemy(Entity):
         self.x=x
         self.y=y
         self.collider='box'
-        self.scale=(3,3)
+        self.scale=(5,5)
+        self.cheese_attack=Entity(model='quad',x=self.x-1.5,y=self.y-1.5,scale=1,texture='images/cheese_attack.png')
+        #self.cheese_attack.x-=10
+
+
 
 
 
