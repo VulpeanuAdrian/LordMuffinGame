@@ -46,6 +46,5 @@ class SecondLevel(Entity):
         self.ground = Entity(model='quad', y=-2, collider='box', color=color.white, scale=(10, 0.7),
                              )
 
-
     def update(self):
-        print(1111*1000)
+        print(100000*10)

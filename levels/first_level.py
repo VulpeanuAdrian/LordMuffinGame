@@ -44,7 +44,9 @@ class FirstLevel(Entity):
         self.cat_ball_attack = CatBall()
         self.score_counter = 0
         ground_coordonates=[]
-        self.bg = Entity(model='cube', scale=(self.size, 24), texture='images/image01', z=1)
+        self.bg = Entity(model='cube', scale=(self.size, 30), texture='images/image01', z=1)
+
+        self.cloud_background = Entity(model='cube',x=170, scale=(200, 50), texture='images/foggy', z=1)
 
         self.ground = Entity(model='quad', y=-2, collider='box', color=color.white, scale=(10, 0.7),
                              texture=f'images/brick.jpg')
@@ -82,9 +84,10 @@ class FirstLevel(Entity):
         # Health Bar
         self.full_bar = HealthBar(4, 0, 255, 0, 0)
         self.green_bar = HealthBar(4, -.01, 0, 255, 0)
-        for m in range(terrain_lengh_size + 5):
+        for m in range(terrain_lengh_size + 2):
             duplicate(entity=self.bg, x=self.size * (m + 1))
-            duplicate(entity=self.bg, x=-self.size * (m + 1))
+            print(self.bg.x,self.bg.y)
+
 
         for m in range(terrain_lengh_size):
             self.enemy = DogEnemy(2 - 1 + self.size * (m - 1), -1)
@@ -129,21 +132,35 @@ class FirstLevel(Entity):
                                      scale=(1, 1),
                                      texture=f'images/brick.jpg')
 
-            if i % 5 == 0:
-                duplicate(entity=self.bg, x=self.stairs.x, y=self.stairs.y)
+            # if i % 5 == 0:
+            #     duplicate(entity=self.bg, x=self.stairs.x, y=self.stairs.y)
 
-        self.up_stairs_ground = Entity(model='quad', y=self.stairs.y, x=self.stairs.x + 17, collider='box',
-                                       color=color.orange,
-                                       scale=(30, 0.7),
+
+        self.up_stairs_ground = Entity(model='quad', y=self.stairs.y, x=self.stairs.x + 10, collider='box',
+                                       color=color.white,
+                                       scale=(15, 1),
                                        texture=f'images/brick.jpg')
 
-
         self.mouse_enemy = MouseEnemy(y=self.stairs.y + 2.5, x=self.stairs.x + 10)
+
+        for i in range(6):
+            self.stairs = Entity(model='quad', y=self.up_stairs_ground.y+i, x=i + self.up_stairs_ground.x+5+ i, collider='box',
+                                 color=color.white,
+                                 scale=(0.8, 1),
+                                 texture=f'images/cloud.png')
+
+
+        self.cloud_stair=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+17, collider='box',
+                                 color=color.white,
+                                 scale=(10, 5),
+                                 texture=f'images/cloud.png')
+        for i in range(1,4):
+            duplicate(entity=self.cloud_stair, x=self.cloud_stair.x+15*i)
+
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x+i , self.mouse_enemy.y-1.3 ])
 
         self.enemies.append(self.mouse_enemy)
-        switch = 1
         # camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], self.speed=4))
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -156,7 +173,7 @@ class FirstLevel(Entity):
         for coin in self.list_of_coints:
             coin.rotation_y+=time.dt *300
         text.y=1
-        text=Text(text=f'Cube Score: {self.score_counter}', scale=2, position=(-.85, .45),origin=(0,0),color=color.yellow,
+        text=Text(text=f' Score: {self.score_counter}', scale=2, position=(-.75, .45),origin=(0,0),color=color.yellow,
                   background=True)
 
 
@@ -212,7 +229,7 @@ class FirstLevel(Entity):
                     if enemy.cheese_attack.x <57:
                         enemy.cheese_attack.x=enemy.x
                     if abs(self.player.x - enemy.cheese_attack.x) < 1 and abs(
-                            self.player.y - enemy.cheese_attack.y) < 1:
+                            self.player.y - enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
                         self.player.rotation_z = 90
                         switch = 0
                         self.green_bar.scale_x = 0
@@ -227,10 +244,12 @@ class FirstLevel(Entity):
                             enemy.visible = False
                             enemy.x=-1222
                             self.score_counter += 50
-                            Text(text="Puwerfect , you just finish the first level!", origin=(0, 0), scale=2, color=color.yellow,
+                            m=Text(text="Puwerfect , you just finish the first level!", origin=(0, 0), scale=2, color=color.yellow,
                                  background=True)
+                            invoke(destroy, m, delay=2)
+
                             self.finish_level=True
-                            #destroy(self)
+
 
 
         # check for collision in traps
@@ -280,6 +299,8 @@ class FirstLevel(Entity):
         if held_keys['y']:  # in case player stuck
             self.player.y += 1
             self.player.x += 1
+
+
 
     def input(self, key):
         if key == 'space':
