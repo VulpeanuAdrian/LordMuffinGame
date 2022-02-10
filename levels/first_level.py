@@ -1,7 +1,7 @@
 from ursina import *
 from ursina.prefabs.platformer_controller_2d import PlatformerController2d
 from obj.cat_menu import HealthBar, MenuMenu
-from obj.enemy import DogEnemy, BirdEnemy, MouseEnemy
+from obj.enemy import DogEnemy, BirdEnemy, MouseEnemy,RattonEnemy
 from obj.cat_powers import CatBall, CatCoins
 from levels.second_level import SecondLevel
 
@@ -25,7 +25,7 @@ class FirstLevel(Entity):
         self.coints_sound=Audio('coint.mp3',loop=False,autoplay=False)
         self.death_enemies = []
         self.mouse_hit_points = 6  # final boss life = equal with 5 hits
-        self.immortal_muffin = 1
+        self.immortal_muffin = 0
         self.switch = 1
         self.cat_power_flag = 0
         self.bird_speed = 1
@@ -43,6 +43,7 @@ class FirstLevel(Entity):
         self.size = 13
         self.cat_ball_attack = CatBall()
         self.score_counter = 0
+        self.full_bar=10
         ground_coordonates=[]
         self.bg = Entity(model='cube', scale=(self.size, 30), texture='images/image01', z=1)
 
@@ -80,7 +81,7 @@ class FirstLevel(Entity):
         self.restart_button = Button(color=color.blue, scale=(.15, .1), text='Restart')
 
         self.restart_button.visible = False
-        # self.restart_button.on_click = self.reset
+        self.restart_button.on_click = self.reset
         # Health Bar
         self.full_bar = HealthBar(4, 0, 255, 0, 0)
         self.green_bar = HealthBar(4, -.01, 0, 255, 0)
@@ -155,7 +156,8 @@ class FirstLevel(Entity):
                                  scale=(10, 5),
                                  texture=f'images/cloud.png')
         for i in range(1,4):
-            duplicate(entity=self.cloud_stair, x=self.cloud_stair.x+15*i)
+            duplicate(entity=self.cloud_stair, x=self.cloud_stair.x+13*i)
+            self.enemies.append(RattonEnemy(x=self.cloud_stair.x+13*i, y=self.cloud_stair.y+3))
 
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x+i , self.mouse_enemy.y-1.3 ])
@@ -213,7 +215,7 @@ class FirstLevel(Entity):
                     enemy.x += self.bird_speed * time.dt
                 if abs(self.player.x - enemy.x) < 1 and abs(self.player.y - enemy.y) < 1 and self.immortal_muffin == 0:
                     self.player.rotation_z = 90
-                    switch = 0
+                    self.switch = 0
                     self.green_bar.scale_x = 0
 
                 if isinstance(enemy, MouseEnemy) is False:
@@ -223,15 +225,27 @@ class FirstLevel(Entity):
                         self.enemies.remove(enemy)
                         self.score_counter += 1
 
-                else:
+                if isinstance(enemy,RattonEnemy):
+                    left_attack=enemy.raccon_attack
+                    up_attack=enemy.raccon_attack
+                    up_attack.y+=0.10
+                    left_attack.x-=0.10
+                    if left_attack.x+5<enemy.x or up_attack.y>enemy.y+5:
+                        left_attack.x=enemy.x
+                        up_attack.y=enemy.y
+                    if abs(self.player.x - enemy.raccon_attack.x) < 1 and abs(
+                            self.player.y - enemy.raccon_attack.y) < 1 and self.immortal_muffin == 0:
+                        self.switch = 0
+                        self.green_bar.scale_x = 0
+
+                elif isinstance(enemy,MouseEnemy):
                     enemy.cheese_attack
                     enemy.cheese_attack.x-=0.10
-                    if enemy.cheese_attack.x <57:
+                    if enemy.cheese_attack.x+10 <enemy.x:
                         enemy.cheese_attack.x=enemy.x
                     if abs(self.player.x - enemy.cheese_attack.x) < 1 and abs(
                             self.player.y - enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
-                        self.player.rotation_z = 90
-                        switch = 0
+                        self.switch = 0
                         self.green_bar.scale_x = 0
                     if abs(self.cat_ball_attack.x - enemy.x) < 0.5:
                         self.cat_ball_attack.x=-1222
@@ -262,7 +276,7 @@ class FirstLevel(Entity):
                 self.green_bar.scale_x -= self.shrink_health_bar * time.dt
                 if self.green_bar.scale_x < 0.1 and self.immortal_muffin == 0:
                     self.player.rotation_z = 90
-                    switch = 0
+                    self.switch = 0
             else:
                 self.player.color = color.white
 
@@ -310,3 +324,22 @@ class FirstLevel(Entity):
             self.player.jump()
         # if self.player.jumping is False:
         #     self.player.texture = 'muffin_02.png'
+
+    def reset(self):
+        #global switch, enemies, immortal_muffin, score_counter, cat_power_flag
+        self.score_counter = 0
+        self.player.rotation_z = 0
+        self.cat_power_flag = 0
+        self.cat_food.visible = True
+        self.player.x = 0
+        self.green_bar.scale_x = 5
+        self.switch = 1
+        self.restart_button.visible = False
+        self.immortal_muffin=1
+        invoke(self.func_immortal_muffin, delay=5)
+        for enemy in self.death_enemies:
+            enemy.visible = True  # set the visible to true for death enemies(when they die visible becomes false..
+        #enemies += self.death_enemies  # add death enemies to the new list when they are revived(after restart button is presset)
+
+    def func_immortal_muffin(self):
+        self.immortal_muffin=0

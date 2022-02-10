@@ -39,7 +39,18 @@ class MouseEnemy(Entity):
         #self.cheese_attack.x-=10
 
 
-
+class RattonEnemy(Entity):
+    def __init__(self,x,y):
+        super().__init__()
+        self.model='quad'
+        self.color=color.white
+        self.texture='images/raccon.png'
+        self.x=x
+        self.y=y
+        #self.collider='box'
+        self.scale=(1.5,1.5)
+        self.raccon_attack=Entity(model='quad',x=self.x-1.5,y=self.y,scale=0.8,texture='images/smell.png',
+                                  color=color.green)
 
 
 
