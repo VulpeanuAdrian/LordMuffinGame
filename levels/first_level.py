@@ -1,7 +1,7 @@
 from ursina import *
 from ursina.prefabs.platformer_controller_2d import PlatformerController2d
 from obj.cat_menu import HealthBar, MenuMenu
-from obj.enemy import DogEnemy, BirdEnemy, MouseEnemy,RattonEnemy
+from obj.enemy import DogEnemy, BirdEnemy, MouseEnemy,RattonEnemy,CatFireTower
 from obj.cat_powers import CatBall, CatCoins
 from levels.second_level import SecondLevel
 
@@ -155,12 +155,20 @@ class FirstLevel(Entity):
                                  color=color.white,
                                  scale=(10, 5),
                                  texture=f'images/cloud.png')
+
+        self.cat_fire_tower=CatFireTower(x=self.cloud_stair.x,y=self.cloud_stair.y+4)
         for i in range(1,4):
             duplicate(entity=self.cloud_stair, x=self.cloud_stair.x+13*i)
             self.enemies.append(RattonEnemy(x=self.cloud_stair.x+13*i, y=self.cloud_stair.y+3))
+           # duplicate(entity=self.cat_fire_towerx=self.cloud_stair.x+10*i)
 
+        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+92, collider='box',
+                                 color=color.white,
+                                 scale=(50,10),
+                                 texture=f'images/cloud_rectangle.png')
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x+i , self.mouse_enemy.y-1.3 ])
+
 
         self.enemies.append(self.mouse_enemy)
         # camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], self.speed=4))
@@ -226,23 +234,15 @@ class FirstLevel(Entity):
                         self.score_counter += 1
 
                 if isinstance(enemy,RattonEnemy):
-                    left_attack=enemy.raccon_attack
-                    up_attack=enemy.raccon_attack
-                    up_attack.y+=0.10
-                    left_attack.x-=0.10
-                    if left_attack.x+5<enemy.x or up_attack.y>enemy.y+5:
-                        left_attack.x=enemy.x
-                        up_attack.y=enemy.y
                     if abs(self.player.x - enemy.raccon_attack.x) < 1 and abs(
                             self.player.y - enemy.raccon_attack.y) < 1 and self.immortal_muffin == 0:
                         self.switch = 0
                         self.green_bar.scale_x = 0
-
+                if abs(self.player.x -self.cat_fire_tower.fire_tower_attack.x)<1 and abs(
+                            self.player.y - self.cat_fire_tower.fire_tower_attack.y) < 1 and self.immortal_muffin == 0:
+                        #self.switch = 0
+                        self.green_bar.scale_x -= self.shrink_health_bar * time.dt
                 elif isinstance(enemy,MouseEnemy):
-                    enemy.cheese_attack
-                    enemy.cheese_attack.x-=0.10
-                    if enemy.cheese_attack.x+10 <enemy.x:
-                        enemy.cheese_attack.x=enemy.x
                     if abs(self.player.x - enemy.cheese_attack.x) < 1 and abs(
                             self.player.y - enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
                         self.switch = 0
@@ -250,7 +250,7 @@ class FirstLevel(Entity):
                     if abs(self.cat_ball_attack.x - enemy.x) < 0.5:
                         self.cat_ball_attack.x=-1222
                         self.mouse_hit_points -= 1
-                        invoke(setattr, enemy, 'visible',False, delay=0.25) #todo try to use this at others enemies
+                        invoke(setattr, enemy, 'visible',False, delay=0.25)
                         invoke(setattr, enemy, 'visible',True, delay=0.25)
 
                         enemy.visible=True
@@ -324,6 +324,9 @@ class FirstLevel(Entity):
             self.player.jump()
         # if self.player.jumping is False:
         #     self.player.texture = 'muffin_02.png'
+
+        if key == 'i':
+            self.immortal_muffin=1
 
     def reset(self):
         #global switch, enemies, immortal_muffin, score_counter, cat_power_flag

@@ -38,6 +38,11 @@ class MouseEnemy(Entity):
         self.cheese_attack=Entity(model='quad',x=self.x-1.5,y=self.y-1.5,scale=1,texture='images/cheese_attack.png')
         #self.cheese_attack.x-=10
 
+    def update(self):
+        self.cheese_attack
+        self.cheese_attack.x -= 0.10
+        if self.cheese_attack.x + 10 < self.x:
+            self.cheese_attack.x = self.x
 
 class RattonEnemy(Entity):
     def __init__(self,x,y):
@@ -52,8 +57,32 @@ class RattonEnemy(Entity):
         self.raccon_attack=Entity(model='quad',x=self.x-1.5,y=self.y,scale=0.8,texture='images/smell.png',
                                   color=color.green)
 
+    def update(self):
+        left_attack = self.raccon_attack
+        up_attack = self.raccon_attack
+        up_attack.y += 0.10
+        left_attack.x -= 0.10
+        if left_attack.x + 5 < self.x or up_attack.y > self.y + 5:
+            left_attack.x = self.x
+            up_attack.y = self.y
+class CatFireTower(Entity):
+    def __init__(self,x,y):
+        super().__init__()
+        self.model='quad'
+        self.color=color.white
+        self.texture='images/cat_fire_tower.png'
+        self.x=x
+        self.y=y
+        self.collider='box'
+        self.scale=(2,4)
+        self.fire_tower_attack=Entity(model='quad',x=self.x-1.5,y=y,scale=(0.5,1),texture='arrow_right',
+                                  color=color.red)
 
 
+    def update(self):
+        self.fire_tower_attack.x-=0.10
+        if self.fire_tower_attack.x+10<self.x:
+            self.fire_tower_attack.x=self.x
 
 
 
