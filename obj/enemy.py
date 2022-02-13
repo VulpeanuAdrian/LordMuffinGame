@@ -1,5 +1,6 @@
 from ursina import Entity
 from ursina import color
+from ursina import destroy
 import time
 
 class DogEnemy(Entity):
@@ -39,11 +40,13 @@ class MouseEnemy(Entity):
         #self.cheese_attack.x-=10
 
     def update(self):
-        self.cheese_attack
-        self.cheese_attack.x -= 0.10
-        if self.cheese_attack.x + 10 < self.x:
-            self.cheese_attack.x = self.x
-
+        if self.visible == True:
+            self.cheese_attack
+            self.cheese_attack.x -= 0.10
+            if self.cheese_attack.x + 10 < self.x:
+                self.cheese_attack.x = self.x
+        # else:
+        #     destroy(self.cheese_attack)
 class RattonEnemy(Entity):
     def __init__(self,x,y):
         super().__init__()
@@ -58,13 +61,16 @@ class RattonEnemy(Entity):
                                   color=color.green)
 
     def update(self):
-        left_attack = self.raccon_attack
-        up_attack = self.raccon_attack
-        up_attack.y += 0.10
-        left_attack.x -= 0.10
-        if left_attack.x + 5 < self.x or up_attack.y > self.y + 5:
-            left_attack.x = self.x
-            up_attack.y = self.y
+        if self.visible==True:
+            left_attack = self.raccon_attack
+            up_attack = self.raccon_attack
+            up_attack.y += 0.10
+            left_attack.x -= 0.10
+            if left_attack.x + 5 < self.x or up_attack.y > self.y + 5:
+                left_attack.x = self.x
+                up_attack.y = self.y
+        else:
+            destroy(self.raccon_attack)
 class CatFireTower(Entity):
     def __init__(self,x,y):
         super().__init__()
@@ -75,12 +81,12 @@ class CatFireTower(Entity):
         self.y=y
         self.collider='box'
         self.scale=(2,4)
-        self.fire_tower_attack=Entity(model='quad',x=self.x-1.5,y=y,scale=(0.5,1),texture='arrow_right',
+        self.fire_tower_attack=Entity(model='quad',x=self.x-1.5,y=y,scale=(2,1.5),texture='arrow_right',
                                   color=color.red)
 
 
     def update(self):
-        self.fire_tower_attack.x-=0.10
+        self.fire_tower_attack.x-=0.05
         if self.fire_tower_attack.x+10<self.x:
             self.fire_tower_attack.x=self.x
 

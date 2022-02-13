@@ -33,9 +33,9 @@ class FirstLevel(Entity):
         self.size = 13
         self.shrink_health_bar = 2
         self.enemies = []
-        self.enemy = DogEnemy(2, -1)
+        self.enemy = DogEnemy(2, -2)
         self.enemies.append(self.enemy)
-        self.enemy = DogEnemy(-6, -1)
+        self.enemy = DogEnemy(-6, -2)
         self.enemies.append(self.enemy)
         self.enemy = BirdEnemy(-10, 5)
         self.enemies.append(self.enemy)
@@ -45,30 +45,30 @@ class FirstLevel(Entity):
         self.score_counter = 0
         self.full_bar=10
         ground_coordonates=[]
-        self.bg = Entity(model='cube', scale=(self.size, 30), texture='images/image01', z=1)
+        self.bg = Entity(model='cube',y=15.8, scale=(self.size, 45), texture='images/forest_bg', z=1)
 
-        self.cloud_background = Entity(model='cube',x=170, scale=(200, 50), texture='images/foggy', z=1)
+        self.cloud_background = Entity(model='cube',x=170, scale=(200, 50), texture='images/background_0', z=1)
 
-        self.ground = Entity(model='quad', y=-2, collider='box', color=color.white, scale=(10, 0.7),
-                             texture=f'images/brick.jpg')
+        self.ground = Entity(model='quad', y=-5, collider='box', color=color.white, scale=(10,5),
+                             texture=f'images/grass.png')
 
-        self.player = PlatformerController2d(y=5,x=56, scale=(1, 1,0.01/2), color=color.white,
+        self.player = PlatformerController2d(y=22,x=56-56, scale=(1, 1,0.01/2), color=color.white,
                                              texture=f'images/muffin_02.png')
         self.player.walk_speed = 10
         self.list_of_coints = []
 
         self.cube = Entity(model='quad', x=2, y=3, scale_x=2, collider='box', color=color.white,
-                           texture='images/cat_slider')
+                           texture='images/low_slider')
         ground_coordonates.append([self.cube.x+1,self.cube.y+1])
         self.cat_food = Entity(model='quad', x=2, y=4, scale_x=0.5, color=color.white, texture='images/cat_food1')
         self.cat_food_2= Entity(model='quad', x=72, y=8, scale_x=0.5, color=color.white, texture='images/cat_food1')
 
         self.wall = Entity(model='quad',y=-0.5, x=-3,scale=(2.5,2.5),
-                           collider='box', color=color.white, texture='images/cat_tower.png')
+                           collider='box', color=color.white, texture='images/slider.png')
         ground_coordonates.append([self.wall.x,self.wall.y+5])
 
         self.level = Entity(model='quad', color=color.white, y=1.3, scale=(3, 1), x=4, collider='box',
-                            texture='images/cat_slider')
+                            texture='images/platform_1')
         ground_coordonates.append([self.level.x+3,self.level.y+3])
 
         self.trap_list = []
@@ -87,25 +87,25 @@ class FirstLevel(Entity):
         self.green_bar = HealthBar(4, -.01, 0, 255, 0)
         for m in range(terrain_lengh_size + 2):
             duplicate(entity=self.bg, x=self.size * (m + 1))
-            print(self.bg.x,self.bg.y)
-
+            if i%2==1:
+                duplicate(entity=self.bg, x=self.size * (m + 1),texture='images/second_forest_bg')
 
         for m in range(terrain_lengh_size):
-            self.enemy = DogEnemy(2 - 1 + self.size * (m - 1), -1)
+            self.enemy = DogEnemy(2 - 1 + self.size * (m - 1), -2)
             self.enemies.append(self.enemy)
-            self.enemy = DogEnemy(2 - 1 - self.size * (m - 1), -1)
+            self.enemy = DogEnemy(2 - 1 - self.size * (m - 1), -2)
             self.enemies.append(self.enemy)
             if m % 2 == 2:
-                self.enemy = DogEnemy(-2.5 - 1 + self.size * (m - 1), -1)
+                self.enemy = DogEnemy(-2.5 - 1 + self.size * (m - 1), -2)
                 self.enemies.append(self.enemy)
-                self.enemy = DogEnemy(-2.5 - 1 - self.size * (m - 1), -1)
+                self.enemy = DogEnemy(-2.5 - 1 - self.size * (m - 1), -2)
                 self.enemies.append(self.enemy)
 
             self.enemy = BirdEnemy(-10 - 1 + self.size * (m - 1), 5)
             self.enemies.append(self.enemy)
             self.enemy = BirdEnemy(-10 - 1 - self.size * (m - 1), 5)
             self.enemies.append(self.enemy)
-            duplicate(entity=self.bg, x=self.size * (m + 1))
+            #duplicate(entity=self.bg, x=self.size * (m + 1))
 
             duplicate(entity=self.ground, x=self.size * (m + 1))
             duplicate(entity=self.ground, x=-self.size * (m + 1))
@@ -125,13 +125,13 @@ class FirstLevel(Entity):
             self.stairs = Entity(model='quad', y=i + i, x=i + self.ground.x + terrain_lengh_size * 14, collider='box',
                                  color=color.white,
                                  scale=(1, 1),
-                                 texture=f'images/brick.jpg')
+                                 texture=f'images/grass.png')
 
 
             self.cat_food_stair=Entity(model='quad', y=4 , x= 72, collider='box',
                                      color=color.white,
                                      scale=(1, 1),
-                                     texture=f'images/brick.jpg')
+                                     texture=f'images/grass.png')
 
             # if i % 5 == 0:
             #     duplicate(entity=self.bg, x=self.stairs.x, y=self.stairs.y)
@@ -140,7 +140,7 @@ class FirstLevel(Entity):
         self.up_stairs_ground = Entity(model='quad', y=self.stairs.y, x=self.stairs.x + 10, collider='box',
                                        color=color.white,
                                        scale=(15, 1),
-                                       texture=f'images/brick.jpg')
+                                       texture=f'images/grass.png')
 
         self.mouse_enemy = MouseEnemy(y=self.stairs.y + 2.5, x=self.stairs.x + 10)
 
@@ -165,7 +165,7 @@ class FirstLevel(Entity):
         self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+92, collider='box',
                                  color=color.white,
                                  scale=(50,10),
-                                 texture=f'images/cloud_rectangle.png')
+                                 texture=f'images/second_ground.png')
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x+i , self.mouse_enemy.y-1.3 ])
 
@@ -179,6 +179,10 @@ class FirstLevel(Entity):
         for i in range(len(ground_coordonates)):
             self.list_of_coints.append(CatCoins(ground_coordonates[i][0],ground_coordonates[i][1]))
     def update(self):
+        if self.player.y<-5:
+            self.restart_button.visible=True
+            self.restart_button.on_click()
+            self.player.y=5
         global right_flag, text
         for coin in self.list_of_coints:
             coin.rotation_y+=time.dt *300
@@ -243,8 +247,8 @@ class FirstLevel(Entity):
                         #self.switch = 0
                         self.green_bar.scale_x -= self.shrink_health_bar * time.dt
                 elif isinstance(enemy,MouseEnemy):
-                    if abs(self.player.x - enemy.cheese_attack.x) < 1 and abs(
-                            self.player.y - enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
+                    if abs(self.player.x - self.mouse_enemy.cheese_attack.x) < 1 and abs(
+                            self.player.y - self.mouse_enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
                         self.switch = 0
                         self.green_bar.scale_x = 0
                     if abs(self.cat_ball_attack.x - enemy.x) < 0.5:
