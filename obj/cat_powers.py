@@ -47,3 +47,4 @@ class CatCoins(Entity):
                 self.enabled=False
 
 
+

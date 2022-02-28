@@ -20,7 +20,7 @@ class FirstLevel(Entity):
     def __init__(self, **kwargs):
         super().__init__()
         self.finish_level=False
-        self.first_level_sound = Audio('first_level_sounds.mp3', loop=True, autoplay=True)
+        self.first_level_sound = Audio('platformer_level04_loop.ogg', loop=True, autoplay=True)
         self.jump = Audio('../assets/jump.mp3', loop=False, autoplay=False)
         self.coints_sound=Audio('coint.mp3',loop=False,autoplay=False)
         self.death_enemies = []
@@ -45,6 +45,7 @@ class FirstLevel(Entity):
         self.score_counter = 0
         self.full_bar=10
         ground_coordonates=[]
+        self.checkpoint_list=[]
         self.bg = Entity(model='cube',y=15.8, scale=(self.size, 45), texture='images/forest_bg', z=1)
 
         self.cloud_background = Entity(model='cube',x=170, scale=(200, 50), texture='images/background_0', z=1)
@@ -52,8 +53,10 @@ class FirstLevel(Entity):
         self.ground = Entity(model='quad', y=-5, collider='box', color=color.white, scale=(10,5),
                              texture=f'images/grass.png')
 
-        self.player = PlatformerController2d(y=22,x=56-56, scale=(1, 1,0.01/2), color=color.white,
+        self.player = PlatformerController2d(y=22,x=99, scale=(1, 1,0.01/2), color=color.white,
                                              texture=f'images/muffin_02.png')
+
+        self.restart_coord = (self.player.x,self.player.y)
         self.player.walk_speed = 10
         self.list_of_coints = []
 
@@ -71,10 +74,11 @@ class FirstLevel(Entity):
                             texture='images/platform_1')
         ground_coordonates.append([self.level.x+3,self.level.y+3])
 
+
         self.trap_list = []
         for i in range(1, 5):
             self.trap = Entity(model='quad', scale=(1, 1), x=4 * i // 2 * 5, y=4, collider='box',
-                               texture=f'images/trap.png',
+                               texture=f'images/poison_plant.png',
                                color=color.green)
             self.trap_list.append(self.trap)
 
@@ -85,6 +89,8 @@ class FirstLevel(Entity):
         # Health Bar
         self.full_bar = HealthBar(4, 0, 255, 0, 0)
         self.green_bar = HealthBar(4, -.01, 0, 255, 0)
+        text=Text(text='Health', scale=2, position=(-.75, .34),origin=(0,0),color=color.yellow,
+                  background=False)
         for m in range(terrain_lengh_size + 2):
             duplicate(entity=self.bg, x=self.size * (m + 1))
             if i%2==1:
@@ -162,10 +168,11 @@ class FirstLevel(Entity):
             self.enemies.append(RattonEnemy(x=self.cloud_stair.x+13*i, y=self.cloud_stair.y+3))
            # duplicate(entity=self.cat_fire_towerx=self.cloud_stair.x+10*i)
 
-        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+92, collider='box',
+        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+70, collider='box',
                                  color=color.white,
-                                 scale=(50,10),
+                                 scale=(10,5),
                                  texture=f'images/second_ground.png')
+
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x+i , self.mouse_enemy.y-1.3 ])
 
@@ -178,6 +185,11 @@ class FirstLevel(Entity):
         print(ground_coordonates)
         for i in range(len(ground_coordonates)):
             self.list_of_coints.append(CatCoins(ground_coordonates[i][0],ground_coordonates[i][1]))
+
+        checkpoint_coordonates_list=[(-1.5,40),(3.5,84)]
+        for checkpoint_cord in range(len(checkpoint_coordonates_list)): # checkpoints
+            self.checkpoint_list.append(Entity(model='quad',y=checkpoint_coordonates_list[checkpoint_cord][0],
+                              x=checkpoint_coordonates_list[checkpoint_cord][1],scale=(2,2),texture='images/checkpoint'))
     def update(self):
         if self.player.y<-5:
             self.restart_button.visible=True
@@ -269,8 +281,20 @@ class FirstLevel(Entity):
                             self.finish_level=True
 
 
+        #checkpoint save
+        if len(self.checkpoint_list)>0:
+            for checkpoint in self.checkpoint_list:
+                if abs(self.player.x - checkpoint.x)<1and abs(
+                            self.player.y - checkpoint.y) < 2 :
+                    if checkpoint.visible:
+                        m = Text(text="Checkpoint reached!", origin=(0, 0), scale=2,
+                                 color=color.yellow,
+                                 background=True)
+                        invoke(destroy, m, delay=1)
+                        checkpoint.visible=False
+                        self.restart_coord=(checkpoint.x,checkpoint.y)
 
-        # check for collision in traps
+        #check for collision in traps
         for trap in self.trap_list:
             dis = abs(self.player.x - trap.x)
             dis_2=abs(self.player.y-trap.y)
@@ -332,13 +356,22 @@ class FirstLevel(Entity):
         if key == 'i':
             self.immortal_muffin=1
 
+        if key == 'x' :
+            self.unloadlevel()
+
+    def unloadlevel(self):
+        #todo : try so solve this!
+        destroy(self.player)
+
     def reset(self):
         #global switch, enemies, immortal_muffin, score_counter, cat_power_flag
         self.score_counter = 0
         self.player.rotation_z = 0
         self.cat_power_flag = 0
         self.cat_food.visible = True
-        self.player.x = 0
+        self.player.x = self.restart_coord[0]
+        self.player.y = self.restart_coord[1]
+
         self.green_bar.scale_x = 5
         self.switch = 1
         self.restart_button.visible = False
@@ -346,7 +379,7 @@ class FirstLevel(Entity):
         invoke(self.func_immortal_muffin, delay=5)
         for enemy in self.death_enemies:
             enemy.visible = True  # set the visible to true for death enemies(when they die visible becomes false..
-        #enemies += self.death_enemies  # add death enemies to the new list when they are revived(after restart button is presset)
+        self.enemies += self.death_enemies  # add death enemies to the new list when they are revived(after restart button is presset)
 
     def func_immortal_muffin(self):
         self.immortal_muffin=0
