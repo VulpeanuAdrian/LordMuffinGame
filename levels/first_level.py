@@ -168,7 +168,7 @@ class FirstLevel(Entity):
             self.enemies.append(RattonEnemy(x=self.cloud_stair.x+13*i, y=self.cloud_stair.y+3))
            # duplicate(entity=self.cat_fire_towerx=self.cloud_stair.x+10*i)
 
-        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+70, collider='box',
+        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+70 , collider='box',
                                  color=color.white,
                                  scale=(10,5),
                                  texture=f'images/second_ground.png')
