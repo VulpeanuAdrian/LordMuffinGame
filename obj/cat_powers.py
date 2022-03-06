@@ -26,7 +26,7 @@ class CatCoins(Entity):
     def __init__(self,x,y=-1):
         super().__init__()
 
-        self.model='quad'
+        self.model='quad' #
         self.color=color.white
         self.texture='images/cat_coin.png'
         self.x=x
