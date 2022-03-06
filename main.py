@@ -33,7 +33,7 @@ if __name__ =='__main__':
     window.fullscreen=True
     cat_screen = Animation('cat_gif', fps=30, loop=True, autoplay=True,scale=(13,13))
     cat_screen.start()
-    play = Button(' Play ', on_click=start_level,scale=(0.095,0.095),x=0,y=0,color=color.blue)  #  #
+    play = Button(' Play ', on_click=start_level,scale=(0.095,0.095),x=0,y=0,color=color.blue)  #  #  s
     help=Button('Help', oan_click=help_menu,scale=(0.095,0.095),x=0,y=-0.1)
     help_text=Text(text=help_text_string,x=-0.3,y=0.3,visible=False,color=color.random_color())
     exit_button = Button(' Quit ',on_click=application.quit,x=0,y=-0.2,scale=(0.095,0.095),color=color.red)
