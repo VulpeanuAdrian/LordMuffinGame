@@ -71,6 +71,31 @@ class RattonEnemy(Entity):
                 up_attack.y = self.y
         else:
             destroy(self.raccon_attack)
+
+
+class OrangeSlime(Entity):
+    def __init__(self,x,y):
+        super().__init__()
+        self.model='quad'
+        self.color=color.white
+        self.texture='images/orange_slime.png'
+        self.x=x
+        self.y=y
+        #self.collider='box'
+        self.scale=(1.5,1.5)
+        self.slime_attack=Entity(model='circle',x=self.x-1.5,y=self.y,scale=0.8,
+                                  color=color.orange)
+
+    def update(self):
+        if self.visible==True:
+            left_attack = self.slime_attack
+            up_attack = self.slime_attack
+            left_attack.x -= 0.10
+            if left_attack.x + 5 < self.x or up_attack.y > self.y + 5:
+                left_attack.x = self.x
+                up_attack.y = self.y
+        else:
+            destroy(self.slime_attack)
 class CatFireTower(Entity):
     def __init__(self,x,y):
         super().__init__()

@@ -7,16 +7,13 @@ help_text_string='In a catlaxy far away the fat persian Muffin must save the cat
                  'Attack:R \n \n'\
                  'Exit:Q in order to quit the game'
 from direct.stdpy import thread # we need threading to load entities in the background (this is specific to ursina, standard threading wouldn't work)
-
 def start_level():
-    global m
     destroy(play)
     destroy(help)
     destroy(help_text)
     destroy(exit_button)
     destroy(cat_screen)
-    m=True
-    m=FirstLevel()
+    return FirstLevel()
 
 def help_text_func():
     play.visible=True
@@ -37,7 +34,4 @@ if __name__ =='__main__':
     help=Button('Help', oan_click=help_menu,scale=(0.095,0.095),x=0,y=-0.1)
     help_text=Text(text=help_text_string,x=-0.3,y=0.3,visible=False,color=color.random_color())
     exit_button = Button(' Quit ',on_click=application.quit,x=0,y=-0.2,scale=(0.095,0.095),color=color.red)
-
-
-
     app = app.run()

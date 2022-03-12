@@ -1,7 +1,7 @@
 from ursina import *
 from ursina.prefabs.platformer_controller_2d import PlatformerController2d
 from obj.cat_menu import HealthBar, MenuMenu
-from obj.enemy import DogEnemy, BirdEnemy, MouseEnemy,RattonEnemy,CatFireTower
+from obj.enemy import DogEnemy, BirdEnemy, MouseEnemy,RattonEnemy,CatFireTower,OrangeSlime
 from obj.cat_powers import CatBall, CatCoins
 from levels.second_level import SecondLevel
 
@@ -53,9 +53,9 @@ class FirstLevel(Entity):
         self.ground = Entity(model='quad', y=-5, collider='box', color=color.white, scale=(10,5),
                              texture=f'images/grass.png')
 
-        self.player = PlatformerController2d(y=22,x=99, scale=(1, 1,0.01/2), color=color.white,
-                                             texture=f'images/muffin_02.png')
-
+        self.player = PlatformerController2d(y=22,x=72, scale=(1, 1,0.01/2), color=color.white, # for dev use x=99
+                                             texture=f'images/muffin_02.png',)
+        #print("player model",self.player.model)
         self.restart_coord = (self.player.x,self.player.y)
         self.player.walk_speed = 10
         self.list_of_coints = []
@@ -168,13 +168,17 @@ class FirstLevel(Entity):
             self.enemies.append(RattonEnemy(x=self.cloud_stair.x+13*i, y=self.cloud_stair.y+3))
            # duplicate(entity=self.cat_fire_towerx=self.cloud_stair.x+10*i)
 
-        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=i + self.up_stairs_ground.x+70 , collider='box',
+        self.cloud_ground=Entity(model='quad', y=self.stairs.y-3, x=self.up_stairs_ground.x+75 , collider='box',
                                  color=color.white,
-                                 scale=(10,5),
-                                 texture=f'images/second_ground.png')
+                                 scale=(10,2),
+                                 texture=f'images/second_ground.png',collision=True)
+        for i in range (1,4):
+            duplicate(entity=self.cloud_ground, x=self.cloud_ground.x+13*i)
+            self.enemies.append(OrangeSlime(x=self.cloud_ground.x+13*i, y=self.cloud_ground.y+1.5))
 
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x+i , self.mouse_enemy.y-1.3 ])
+
 
 
         self.enemies.append(self.mouse_enemy)
