@@ -53,7 +53,7 @@ class FirstLevel(Entity):
         self.ground = Entity(model='quad', y=-5, collider='box', color=color.white, scale=(10,5),
                              texture=f'images/grass.png')
 
-        self.player = PlatformerController2d(y=22,x=72, scale=(1, 1,0.01/2), color=color.white, # for dev use x=99
+        self.player = PlatformerController2d(y=22,x=3, scale=(1, 1,0.01/2), color=color.white, # for dev use x=99
                                              texture=f'images/muffin_02.png',)
         #print("player model",self.player.model)
         self.restart_coord = (self.player.x,self.player.y)
