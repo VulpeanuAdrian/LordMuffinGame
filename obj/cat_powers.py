@@ -21,7 +21,6 @@ class CatBall(Entity):
 
 
 
-list_of_coints=[]
 class CatCoins(Entity):
     def __init__(self,x,y=-1):
         super().__init__()
@@ -32,15 +31,14 @@ class CatCoins(Entity):
         self.x=x
         self.y=y
         self.scale=(0.5,0.5)
-        global list_of_coints
 
 
 
-    def create_coints(self,number_of_coins):
+    def create_coins(self, number_of_coins):
         for i in range(number_of_coins):
             CatCoins(i)
             list_of_coints.append(CatCoins(i))
-        return list_of_coints
+        return list_of_coins
 
     def enable(self,player):
         if abs(player.x-self.x) <=5:
