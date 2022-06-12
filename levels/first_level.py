@@ -192,14 +192,14 @@ class FirstLevel(Entity):
                                                x=checkpoint_coordonates_list[checkpoint_cord][1], scale=(2, 2),
                                                texture='images/checkpoint'))
 
-    def update(self):
-
+    def restart_logic(self):
         if self.player.y < -5:
             self.restart_button.visible = True
             self.restart_button.on_click()
             self.player.y = 5
 
-        global right_flag, text
+    def score_coint_tracker(self):
+        global  text
         for coin in self.list_of_coins:
             coin.rotation_y += time.dt * 300
         text.y = 1
@@ -214,81 +214,42 @@ class FirstLevel(Entity):
                 self.list_of_coins.remove(coint)
                 self.coints_sound.play()
 
+    def cat_food_power_up(self):
+        global right_flag
         if abs(self.player.x - self.cat_food.x) <= 1 and abs(self.player.y - self.cat_food.y) <= 1:
             self.cat_power_flag = 1
             self.cat_food.visible = False
         if abs(self.player.x - self.cat_food_2.x) <= 1 and abs(self.player.y - self.cat_food_2.y) <= 1:
             self.cat_power_flag = 1
             self.cat_food_2.visible = False
+        if self.cat_power_flag == 1:
+            if held_keys['r']:
+                self.cat_ball_attack.visible = True
+                if self.player.right[0] == 1.0:
+                    right_flag = True
+                else:
+                    right_flag = False
+
+                self.cat_ball_attack.attack(self.player)
+        try:
+            if right_flag:
+                self.cat_ball_attack.x += 0.10
+            elif right_flag == False:
+                self.cat_ball_attack.x -= 0.10
+        except:
+            pass
+        if abs(self.cat_ball_attack.x) > abs(self.player.x) + 9:  # range of the cat ball attack
+            self.cat_ball_attack.visible = False
+            self.cat_ball_attack.y = -3
+            self.cat_ball_attack.x = -3
+
+    def health_bar(self):
         self.full_bar.x = camera.x - self.size // 1.5  # size is the width of the background image
         self.full_bar.y = camera.y + 4
         self.green_bar.x = self.full_bar.x
         self.green_bar.y = self.full_bar.y
-        # final boss movement
 
-        if self.switch == 1:
-            self.dx += self.speed * time.dt
-            if abs(self.dx) > 2:
-                self.speed *= -1
-                self.bird_speed *= -1
-                dx = 0
-
-            self.mouse_enemy.x += self.speed * time.dt
-            # check for collision with enemy
-            for enemy in self.enemies:
-                enemy.x += self.speed * time.dt
-                if type(enemy) is BirdEnemy:
-                    enemy.x += 0.01
-                    enemy.x += self.bird_speed * time.dt
-                if abs(self.player.x - enemy.x) < 1 and abs(self.player.y - enemy.y) < 1 and self.immortal_muffin == 0:
-                    self.player.rotation_z = 90
-                    self.switch = 0
-                    self.green_bar.scale_x = 0
-
-                if isinstance(enemy, MouseEnemy) is False:
-                    if abs(self.cat_ball_attack.x - enemy.x) < 1 and abs(self.cat_ball_attack.y - enemy.y) < 1:
-                        self.death_enemies.append(enemy)
-                        enemy.visible = False
-                        self.enemies.remove(enemy)
-                        self.score_counter += 1
-
-                if isinstance(enemy, RattonEnemy):
-                    try:
-                        if abs(self.player.x - enemy.raccon_attack.x) < 1 and abs(
-                                self.player.y - enemy.raccon_attack.y) < 1 and self.immortal_muffin == 0:
-                            self.player.rotation_z = 90
-                            self.switch = 0
-                            self.green_bar.scale_x = 0
-                    except AssertionError:
-                        pass
-                if abs(self.player.x - self.cat_fire_tower.fire_tower_attack.x) < 1 and abs(
-                        self.player.y - self.cat_fire_tower.fire_tower_attack.y) < 1 and self.immortal_muffin == 0:
-                    # self.switch = 0
-                    self.green_bar.scale_x -= self.shrink_health_bar * time.dt
-                elif isinstance(enemy, MouseEnemy):
-                    if abs(self.player.x - self.mouse_enemy.cheese_attack.x) < 1 and abs(
-                            self.player.y - self.mouse_enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
-                        self.switch = 0
-                        self.green_bar.scale_x = 0
-                    if abs(self.cat_ball_attack.x - enemy.x) < 0.5:
-                        self.cat_ball_attack.x = -1222
-                        self.mouse_hit_points -= 1
-                        invoke(setattr, enemy, 'visible', False, delay=0.25)
-                        invoke(setattr, enemy, 'visible', True, delay=0.25)
-                        self.mouse_enemy.cheese_attack.visible == False
-                        enemy.visible = True
-                        if self.mouse_hit_points < 6:
-                            enemy.visible = False
-                            enemy.x = -1222
-                            self.score_counter += 50
-                            m = Text(text="Puwerfect , you just finish the first level!", origin=(0, 0), scale=2,
-                                     color=color.yellow,
-                                     background=True)
-                            invoke(destroy, m, delay=2)
-
-                            self.finish_level = True
-
-        # checkpoint save
+    def check_point_save(self):
         if len(self.checkpoint_list) > 0:
             for checkpoint in self.checkpoint_list:
                 if abs(self.player.x - checkpoint.x) < 1 and abs(
@@ -301,7 +262,7 @@ class FirstLevel(Entity):
                         checkpoint.visible = False
                         self.restart_coord = (checkpoint.x, checkpoint.y)
 
-        # check for collision in traps
+    def plant_trap_logic(self):
         for trap in self.trap_list:
             dis = abs(self.player.x - trap.x)
             dis_2 = abs(self.player.y - trap.y)
@@ -317,39 +278,91 @@ class FirstLevel(Entity):
             else:
                 self.player.color = color.white
 
+    def enemy_movement_and_control(self):
+        self.dx += self.speed * time.dt
+        if abs(self.dx) > 2:
+            self.speed *= -1
+            self.bird_speed *= -1
+            dx = 0
+
+        self.mouse_enemy.x += self.speed * time.dt
+        # check for collision with enemy
+        for enemy in self.enemies:
+            enemy.x += self.speed * time.dt
+            if type(enemy) is BirdEnemy:
+                enemy.x += 0.01
+                enemy.x += self.bird_speed * time.dt
+            if abs(self.player.x - enemy.x) < 1 and abs(self.player.y - enemy.y) < 1 and self.immortal_muffin == 0:
+                self.player.rotation_z = 90
+                self.switch = 0
+                self.green_bar.scale_x = 0
+
+            if isinstance(enemy, MouseEnemy) is False:
+                if abs(self.cat_ball_attack.x - enemy.x) < 1 and abs(self.cat_ball_attack.y - enemy.y) < 1:
+                    self.death_enemies.append(enemy)
+                    enemy.visible = False
+                    self.enemies.remove(enemy)
+                    self.score_counter += 1
+
+            if isinstance(enemy, RattonEnemy):
+                try:
+                    if abs(self.player.x - enemy.raccon_attack.x) < 1 and abs(
+                            self.player.y - enemy.raccon_attack.y) < 1 and self.immortal_muffin == 0:
+                        self.player.rotation_z = 90
+                        self.switch = 0
+                        self.green_bar.scale_x = 0
+                except AssertionError:
+                    pass
+            if abs(self.player.x - self.cat_fire_tower.fire_tower_attack.x) < 1 and abs(
+                    self.player.y - self.cat_fire_tower.fire_tower_attack.y) < 1 and self.immortal_muffin == 0:
+                # self.switch = 0
+                self.green_bar.scale_x -= self.shrink_health_bar * time.dt
+            elif isinstance(enemy, MouseEnemy):
+                if abs(self.player.x - self.mouse_enemy.cheese_attack.x) < 1 and abs(
+                        self.player.y - self.mouse_enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
+                    self.switch = 0
+                    self.green_bar.scale_x = 0
+                if abs(self.cat_ball_attack.x - enemy.x) < 0.5:
+                    self.cat_ball_attack.x = -1222
+                    self.mouse_hit_points -= 1
+                    invoke(setattr, enemy, 'visible', False, delay=0.25)
+                    invoke(setattr, enemy, 'visible', True, delay=0.25)
+                    self.mouse_enemy.cheese_attack.visible == False
+                    enemy.visible = True
+                    if self.mouse_hit_points < 6:
+                        enemy.visible = False
+                        enemy.x = -1222
+                        self.score_counter += 50
+                        m = Text(text="Puwerfect , you just finish the first level!", origin=(0, 0), scale=2,
+                                 color=color.yellow,
+                                 background=True)
+                        invoke(destroy, m, delay=2)
+
+                        self.finish_level = True
+
+    def reset_and_restart_all(self):
+        """
+        All enemy movement and game logic are inside self.switch( if the player is alive switch is equal with 1 -> thus enemy
+        are moving ,player can move etc-> if its 0 -> wait for reset -> stop all movement of the enemies until
+        the player clicks on restart
+        :rtype: object
+        """
+        if self.switch == 1:
+            self.enemy_movement_and_control()
+
         if self.switch == 0:
             self.restart_button.visible = True
-        if held_keys['q'] or held_keys['escape']:
-            quit()
-        # if player.y <= -8:
-        #     quit()q
+            self.player.walk_speed=0
+    def update(self):
+        self.restart_logic()
+        self.score_coint_tracker()
+        self.cat_food_power_up()
+        self.health_bar()
+        self.check_point_save()
+        self.plant_trap_logic()
+        self.reset_and_restart_all()
+        # final boss movement
 
-        if self.cat_power_flag == 1:
-            if held_keys['r']:
-                self.cat_ball_attack.visible = True
-                if self.player.right[0] == 1.0:
-                    right_flag = True
-                else:
-                    right_flag = False
-
-                self.cat_ball_attack.attack(self.player)
-
-        try:
-            if right_flag:
-                self.cat_ball_attack.x += 0.10
-            elif right_flag == False:
-                self.cat_ball_attack.x -= 0.10
-        except:
-            pass
-        if abs(self.cat_ball_attack.x) > abs(self.player.x) + 9:  # range of the cat ball attack
-            self.cat_ball_attack.visible = False
-            self.cat_ball_attack.y = -3
-            self.cat_ball_attack.x = -3
-
-        # in case you are stuck
-        if held_keys['y']:  # in case player stuck
-            self.player.y += 1
-            self.player.x += 1
 
     def immortal_muffin_active(self):
         self.immortal_muffin = 1
@@ -361,7 +374,12 @@ class FirstLevel(Entity):
         if key in actions:
             actions[key]()
 
-
+        if held_keys['q'] or held_keys['escape']:
+            quit()
+        # in case you are stuck
+        if held_keys['y']:  # in case player stuck
+            self.player.y += 1
+            self.player.x += 1
 
 
     def unloadlevel(self):
@@ -380,6 +398,7 @@ class FirstLevel(Entity):
         self.switch = 1
         self.restart_button.visible = False
         self.immortal_muffin = 1
+        self.player.walk_speed = 10
         invoke(self.reset_immortal_muffin, delay=5)
         for enemy in self.death_enemies:
             enemy.visible = True  # set the visible to true for death enemies(when they die visible becomes false..
