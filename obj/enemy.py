@@ -101,7 +101,7 @@ class OrangeSlime(Entity):
                 up_attack.y = self.y
         else:
             # destroy(self.slime_attack)
-            self.raccon_attack.visible = False
+            self.slime_attack.visible = False
         # TODO refactor with destroy
 
 

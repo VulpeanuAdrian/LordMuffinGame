@@ -42,7 +42,7 @@ class FirstLevel(Entity):
         self.enemies.append(self.enemy)
         self.enemy = DogEnemy(-6, -2)
         self.enemies.append(self.enemy)
-        self.enemy = BirdEnemy(-10, 5)
+        self.enemy = BirdEnemy(-10, 4.5)
         self.enemies.append(self.enemy)
         self.speed = 1
         self.size = 13
@@ -110,9 +110,9 @@ class FirstLevel(Entity):
                 self.enemy = DogEnemy(-2.5 - 1 - self.size * (m - 1), -2)
                 self.enemies.append(self.enemy)
 
-            self.enemy = BirdEnemy(-10 - 1 + self.size * (m - 1), 5)
+            self.enemy = BirdEnemy(-10 - 1 + self.size * (m - 1), 4.5)
             self.enemies.append(self.enemy)
-            self.enemy = BirdEnemy(-10 - 1 - self.size * (m - 1), 5)
+            self.enemy = BirdEnemy(-10 - 1 - self.size * (m - 1), 4.5)
             self.enemies.append(self.enemy)
             # duplicate(entity=self.bg, x=self.size * (m + 1))
 
@@ -404,9 +404,9 @@ class FirstLevel(Entity):
         self.immortal_muffin = 1
         self.player.walk_speed = 10
         invoke(self.reset_immortal_muffin, delay=5)
-        for enemy in self.death_enemies:
-            enemy.visible = True  # set the visible to true for death enemies(when they die visible becomes false..
-        self.enemies += self.death_enemies  # add death enemies to the new list when they are revived(after restart button is presset)
+        # for enemy in self.death_enemies:
+        #     enemy.visible = True  # set the visible to true for death enemies(when they die visible becomes false..
+        # self.enemies += self.death_enemies  # add death enemies to the new list when they are revived(after restart button is presset)
 
     def reset_immortal_muffin(self):
         self.immortal_muffin = 0
