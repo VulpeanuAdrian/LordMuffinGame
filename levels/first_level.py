@@ -24,7 +24,10 @@ class FirstLevel(Entity):
         self.first_level_sound = Audio('platformer_level04_loop.ogg', loop=True, autoplay=True)
         self.jump = Audio('../assets/jump.mp3', loop=False, autoplay=False)
         self.coints_sound = Audio('coint.mp3', loop=False, autoplay=False)
-        self.is_pause = False
+        self.pause_handler = Entity(ignore_paused=True)
+        self.pause_text = Text('PAUSE', origin=(0, 0), scale=2,
+                               enabled=False,color=color.yellow)
+        # Assign the input function to the pause handler.
         self.death_enemies = []
         self.mouse_hit_points = 6  # final boss life = equal with 5 hits
         self.immortal_muffin = 0
@@ -199,7 +202,7 @@ class FirstLevel(Entity):
             self.player.y = 5
 
     def score_coint_tracker(self):
-        global  text
+        global text
         for coin in self.list_of_coins:
             coin.rotation_y += time.dt * 300
         text.y = 1
@@ -292,7 +295,7 @@ class FirstLevel(Entity):
             if type(enemy) is BirdEnemy:
                 enemy.x += 0.01
                 enemy.x += self.bird_speed * time.dt
-            if abs(self.player.x - enemy.x) < 1 and abs(self.player.y - enemy.y) < 1 and self.immortal_muffin == 0:
+            if abs(self.player.x - enemy.x) < 1.5 and abs(self.player.y - enemy.y) < 1.5 and self.immortal_muffin == 0:
                 self.player.rotation_z = 90
                 self.switch = 0
                 self.green_bar.scale_x = 0
@@ -352,7 +355,8 @@ class FirstLevel(Entity):
 
         if self.switch == 0:
             self.restart_button.visible = True
-            self.player.walk_speed=0
+            self.player.walk_speed = 0
+
     def update(self):
         self.restart_logic()
         self.score_coint_tracker()
@@ -363,14 +367,17 @@ class FirstLevel(Entity):
         self.reset_and_restart_all()
         # final boss movement
 
-
     def immortal_muffin_active(self):
         self.immortal_muffin = 1
 
-    def input(self, key):
-        actions = {'space': self.jump.play, 'i': self.immortal_muffin_active, 'p': application.pause,
-                   'o': application.resume}
+    def pause_handler_input(self, key):
+        if key == 'p':
+            application.paused = not application.paused  # Pause/unpause the game.
+            self.pause_text.enabled = application.paused  # Also toggle "PAUSED" graphic.
 
+    def input(self, key):
+        actions = {'space': self.jump.play, 'i': self.immortal_muffin_active, }
+        self.pause_handler.input = self.pause_handler_input  # Assign the input function to the pause handler.
         if key in actions:
             actions[key]()
 
@@ -380,7 +387,6 @@ class FirstLevel(Entity):
         if held_keys['y']:  # in case player stuck
             self.player.y += 1
             self.player.x += 1
-
 
     def unloadlevel(self):
         # todo : try so solve this!
