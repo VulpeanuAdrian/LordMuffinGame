@@ -181,7 +181,6 @@ class FirstLevel(Entity):
             ground_coordonates.append([self.mouse_enemy.x + i, self.mouse_enemy.y - 1.3])
 
         self.enemies.append(self.mouse_enemy)
-        # camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], self.speed=4))
         for key, value in kwargs.items():
             setattr(self, key, value)
         camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], speed=4))
@@ -286,14 +285,13 @@ class FirstLevel(Entity):
         if abs(self.dx) > 2:
             self.speed *= -1
             self.bird_speed *= -1
-            dx = 0
+            self.dx = 0
 
         self.mouse_enemy.x += self.speed * time.dt
         # check for collision with enemy
         for enemy in self.enemies:
             enemy.x += self.speed * time.dt
             if type(enemy) is BirdEnemy:
-                enemy.x += 0.01
                 enemy.x += self.bird_speed * time.dt
             if abs(self.player.x - enemy.x) < 1.5 and abs(self.player.y - enemy.y) < 1.5 and self.immortal_muffin == 0:
                 self.player.rotation_z = 90
@@ -325,7 +323,7 @@ class FirstLevel(Entity):
                         self.player.y - self.mouse_enemy.cheese_attack.y) < 1 and self.immortal_muffin == 0:
                     self.switch = 0
                     self.green_bar.scale_x = 0
-                if abs(self.cat_ball_attack.x - enemy.x) < 0.5:
+                if abs(self.cat_ball_attack.x - enemy.x) < 1:
                     self.cat_ball_attack.x = -1222
                     self.mouse_hit_points -= 1
                     invoke(setattr, enemy, 'visible', False, delay=0.25)
