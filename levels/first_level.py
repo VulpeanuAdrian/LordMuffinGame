@@ -173,16 +173,18 @@ class FirstLevel(Entity):
                                    color=color.white,
                                    scale=(10, 2),
                                    texture=f'images/second_ground.png', collision=True)
-        for i in range(1, 4):
+        for i in range(1, 90):
             duplicate(entity=self.cloud_ground, x=self.cloud_ground.x + 13 * i)
+            if i%10 == 0:
+                duplicate(entity=self.cloud_ground,x=self.cloud_ground.x+10,y=self.stairs.y-3)
             self.enemies.append(OrangeSlime(x=self.cloud_ground.x + 13 * i, y=self.cloud_ground.y + 1.5))
 
         for i in range(10):
             ground_coordonates.append([self.mouse_enemy.x + i, self.mouse_enemy.y - 1.3])
 
         self.enemies.append(self.mouse_enemy)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+        # for key, value in kwargs.items():
+        #     setattr(self, key, value)
         camera.add_script(SmoothFollow(target=self.player, offset=[0, 1, -30], speed=4))
         print(ground_coordonates)
         for i in range(len(ground_coordonates)):

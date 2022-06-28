@@ -2,7 +2,7 @@ from ursina import *
 from levels.first_level import FirstLevel
 from levels.second_level import SecondLevel
 
-help_text_string = 'In a catlaxy far away the fat persian Muffin must save the catniverse ->\n \n' \
+help_text_string = 'In a catlaxy far away the fat persian Muffin must save the catniverse \n \n' \
                    'In order to do that you can control it by using:\n \n' \
                    'Movement: Left:A Right:D  jump:space,\n\n' \
                    'Attack:R \n \n' \
@@ -28,15 +28,16 @@ def main():
     def help_menu() -> None:
         global help_text_bt
 
-        help_text_bt = Button(text=help_text_string, on_click=help_text_func, scale=(1, 0.6), x=-0.4, y=0.35,
+        help_text_bt = Button(text=help_text_string, on_click=help_text_func, scale=(0.8, 0.6), x=0.05, y=0.35,
                               color=color.orange, text_color=color.violet)
+
 
     app = Ursina()
     window.fullscreen = False
     cat_screen = Animation('cat_gif', fps=30, loop=True, autoplay=True, scale=(13, 13))  # Cat Animation
     cat_screen.start()
     play = Button('Play', on_click=start_level, scale=(0.095, 0.095), x=0, y=0, color=color.blue)  # Start level button
-    help = Button('Help', oan_click=help_menu, scale=(0.095, 0.095), x=0, y=-0.1)  # Help Button
+    help = Button('Help', on_click=help_menu, scale=(0.095, 0.095), x=0, y=-0.1)  # Help Button
     help_text = Text(text=help_text_string, x=-0.3, y=0.3, visible=False,
                      color=color.random_color())  # Help text pop up
     exit_button = Button(' Quit ', on_click=application.quit, x=0, y=-0.2, scale=(0.095, 0.095),
